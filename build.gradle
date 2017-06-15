@@ -10,20 +10,31 @@ buildscript {
 	}
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'org.springframework.boot'
-
+group 'io.greennav.routing'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.8
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
 
 repositories {
 	mavenCentral()
+	maven {
+		url "http://mvn.topobyte.de"
+	}
 }
 
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter')
+	// Spring
+	compile('org.springframework.boot:spring-boot-starter-web')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
-	compile group: 'org.jgrapht', name: 'jgrapht-ext', version:'1.0.1'
+	// Jgrapht
+	compile('org.jgrapht:jgrapht-ext:1.0.1')
+	// OSM
+	compile('de.topobyte:osm4j-core:0.0.20') {
+	    exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+	    exclude group: 'log4j', module: 'log4j'
+	}
+	// Testing
+	testCompile group: 'junit', name: 'junit', version: '4.12'
 }

@@ -1,10 +1,11 @@
-package io.greennav.map;
+package io.greennav.routing;
 
+import de.topobyte.osm4j.core.model.impl.Node;
 import java.lang.Double;
 
 public final class DistanceComputerInKm extends DistanceComputer {
     @Override
-    public Double apply(MapNode lhs, MapNode rhs) {
+    public Double apply(Node lhs, Node rhs) {
         final double lhs_lon = lhs.getLongitude();
         final double rhs_lon = rhs.getLongitude();
         final double lhs_lat = lhs.getLatitude();

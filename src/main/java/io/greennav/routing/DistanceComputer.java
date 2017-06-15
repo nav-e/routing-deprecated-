@@ -1,8 +1,10 @@
-package io.greennav.map;
+package io.greennav.routing;
+
+import de.topobyte.osm4j.core.model.impl.Node;
 
 public abstract class DistanceComputer implements MapNodeWeightFunction {
     @Override
-    public abstract Double apply(MapNode lhs, MapNode rhs);
+    public abstract Double apply(Node lhs, Node rhs);
 
     protected static double deg2rad(double deg) {
         return (deg * Math.PI / 180.0);
