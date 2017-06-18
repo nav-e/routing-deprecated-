@@ -4,15 +4,16 @@ import de.topobyte.osm4j.core.model.impl.Node;
 import javafx.util.Pair;
 import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
+import java.util.Collection;
 
-public class DijkstraRouter extends Router {
-    public DijkstraRouter(Iterable<Node> nodes, Iterable<Pair<Node, Node>> edges,
+class DijkstraRouter extends Router {
+    DijkstraRouter(Collection<Node> nodes, Collection<Pair<Node, Node>> edges,
                           MapNodeWeightFunction weightFunction) {
         super(nodes, edges, weightFunction);
     }
 
     @Override
-    ShortestPathAlgorithm<Node, MapEdge> getShortestPathAlgorithm(Node source, Node target) {
+    ShortestPathAlgorithm<Node, RoadEdge> getShortestPathAlgorithm(Node source, Node target) {
         return new DijkstraShortestPath<>(this.graph);
     }
 }

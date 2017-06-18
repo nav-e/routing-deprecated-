@@ -1,4 +1,4 @@
-package io.greennav;
+package io.greennav.routing;
 
 import io.greennav.routing.DistanceComputerInKm;
 import io.greennav.routing.MapNodeWeightFunction;

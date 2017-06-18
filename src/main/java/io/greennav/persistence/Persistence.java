@@ -7,23 +7,29 @@ import java.util.Collection;
 import java.util.Set;
 
 public interface Persistence {
-    public void writeNode(Node node);
+    void writeNode(Node node);
 
-    public void writeWay(Way way);
+    void removeNode(Node node);
 
-    public void writeRelation(Relation relation);
+    void writeWay(Way way);
 
-    public Node getNodeById(long id) throws Exception;
+    void removeWay(Way way);
 
-    public Way getWayById(long id);
+    void writeRelation(Relation relation);
 
-    public Relation getRelationById(long id);
+    void removeRelation(Relation relation);
 
-    public Collection<Node> queryNodes(String key, String value);
+    Node getNodeById(long id);
 
-    public Collection<Way> queryEdges(String key, String value);
+    Way getWayById(long id);
 
-    public Collection<Relation> queryRelations(String key, String value);
+    Relation getRelationById(long id);
 
-    public Set<Node> getNeighbors(Node node);
+    Collection<Node> queryNodes(String key, String value);
+
+    Collection<Way> queryEdges(String key, String value);
+
+    Collection<Relation> queryRelations(String key, String value);
+
+    Set<Node> getNeighbors(Node node);
 }

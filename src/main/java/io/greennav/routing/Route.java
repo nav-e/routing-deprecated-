@@ -3,7 +3,7 @@ package io.greennav.routing;
 import de.topobyte.osm4j.core.model.impl.Node;
 import java.util.List;
 
-public class Route {
+class Route {
     private final List<Node> route;
     private final long runtimeInMs;
 
@@ -12,11 +12,11 @@ public class Route {
         this.runtimeInMs = runtimeInMs;
     }
 
-    public List<Node> getRoute() {
+    List<Node> getRoute() {
         return route;
     }
 
-    public long getRuntimeInMs() {
+    long getRuntimeInMs() {
         return runtimeInMs;
     }
 }
