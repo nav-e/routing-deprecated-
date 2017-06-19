@@ -35,6 +35,13 @@ dependencies {
 	    exclude group: 'org.slf4j', module: 'slf4j-log4j12'
 	    exclude group: 'log4j', module: 'log4j'
 	}
+	compile('de.topobyte:osm4j-pbf:0.0.10') {
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+        exclude group: 'log4j', module: 'log4j'
+    }
+    // Server
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
+    compile "com.sparkjava:spark-core:2.6.0"
 	// Testing
 	testCompile group: 'junit', name: 'junit', version: '4.12'
 }
