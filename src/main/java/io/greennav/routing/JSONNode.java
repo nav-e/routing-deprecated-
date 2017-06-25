@@ -2,7 +2,6 @@ package io.greennav.routing;
 
 import de.topobyte.osm4j.core.model.impl.Node;
 import de.topobyte.osm4j.core.model.util.OsmModelUtil;
-
 import java.util.Map;
 
 public class JSONNode {

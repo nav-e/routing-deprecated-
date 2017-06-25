@@ -8,8 +8,6 @@ import io.greennav.persistence.InMemoryPersistence;
 import io.greennav.persistence.Persistence;
 import javafx.util.Pair;
 import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
-import org.jgrapht.graph.SimpleDirectedWeightedGraph;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;

@@ -4,7 +4,6 @@ import de.topobyte.osm4j.core.model.impl.Node;
 import io.greennav.persistence.Persistence;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 import org.jgrapht.graph.specifics.Specifics;
-
 import java.util.HashSet;
 import java.util.Set;
 

@@ -18,14 +18,14 @@ public class RoutingTests {
 		AtomicLong idCounter = new AtomicLong();
 		for (double lat = 0.; lat <= 5.; lat += 1.) {
 			for (double lon = 0.; lon <= 5.; lon += 1.) {
-				for (double lat_delta : new double[]{-1., 0., 1.}) {
-					for (double lon_delta : new double[]{-1., 0., 1.}) {
-						final double lat_new = lat + lat_delta, lon_new = lon + lon_delta;
-						if (lat_new < 0. || lat_new > 5. || lon_new < 0. || lon_new > 5.) continue;
+				for (double deltaLat : new double[]{-1., 0., 1.}) {
+					for (double deltaLon : new double[]{-1., 0., 1.}) {
+						final double newLat = lat + deltaLat, newLon = lon + deltaLon;
+						if (newLat < 0. || newLat > 5. || newLon < 0. || newLon > 5.) continue;
 						final long id = idCounter.getAndAdd(1);
 						nodes.putIfAbsent(
-								new Pair<>(lat_new, lon_new),
-								new Node(id, lat_new, lon_new)
+								new Pair<>(newLat, newLon),
+								new Node(id, newLat, newLon)
 						);
 					}
 				}
