@@ -36,3 +36,7 @@ nbdist/
 
 ### OS ###
 .DS_Store
+
+### Rest ###
+src/main/resources/static/
+src/main/resources/templates/

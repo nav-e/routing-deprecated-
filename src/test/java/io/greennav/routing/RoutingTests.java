@@ -1,16 +1,10 @@
 package io.greennav.routing;
 
 import de.topobyte.osm4j.core.model.impl.Node;
-import de.topobyte.osm4j.core.model.impl.Way;
-import gnu.trove.list.TLongList;
-import gnu.trove.list.array.TLongArrayList;
-import io.greennav.persistence.InMemoryPersistence;
-import io.greennav.persistence.Persistence;
 import javafx.util.Pair;
 import org.junit.Test;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-
 import static org.junit.Assert.assertEquals;
 
 public class RoutingTests {
@@ -80,55 +74,6 @@ public class RoutingTests {
 				Math.abs(lhs.getLatitude() * (lhs.getLatitude() - lhs.getLongitude()));
 		final Router dijkstraRouter = new DijkstraRouter(nodes.values(), edges, weightFunction);
 		final Router aStarRouter = new AStarRouter(nodes.values(), edges, weightFunction);
-		final List<Node> expected = dijkstraRouter.getShortestPath(begin, end).getRoute();
-		final List<Node> actual = aStarRouter.getShortestPath(begin, end).getRoute();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	public void dijkstraPersistenceRouterTest() {
-		final Persistence persistence = new InMemoryPersistence();
-		final Node[] nodesArray = {
-				new Node(0, 0, 0),
-				new Node(1, 0, 1),
-				new Node(2, 1, 0),
-				new Node(3, 1, 1)
-		};
-		final List<Node> nodes = Arrays.asList(nodesArray);
-		nodes.forEach(persistence::writeNode);
-		final TLongList firstWayIds = new TLongArrayList(new long[]{0, 1, 2});
-		final TLongList secondWayIds = new TLongArrayList(new long[]{1, 3});
-		final TLongList thirdWayIds = new TLongArrayList(new long[]{0, 3});
-		persistence.writeWay(new Way(0, firstWayIds));
-		persistence.writeWay(new Way(1, secondWayIds));
-		persistence.writeWay(new Way(2, thirdWayIds));
-		final Router router = new DijkstraRouter(persistence, new DistanceComputerInKm());
-		final Node begin = nodesArray[0];
-		final Node end = nodesArray[nodesArray.length - 1];
-		final List<Node> actual = Arrays.asList(begin, end);
-		final List<Node> expected = router.getShortestPath(begin, end).getRoute();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	public void aStarPersistenceRouterTest() {
-		final Persistence persistence = new InMemoryPersistence();
-		final Map<Pair<Double, Double>, Node> nodes = new HashMap<>();
-		final List<Pair<Node, Node>> edges = new ArrayList<>();
-		createGridGraph(nodes, edges);
-		nodes.values().forEach(persistence::writeNode);
-		AtomicLong idCounter = new AtomicLong();
-		edges.forEach(pair -> {
-			Node source = pair.getKey();
-			Node target = pair.getValue();
-			final TLongList edgeIds = new TLongArrayList(new long[]{source.getId(), target.getId()});
-			persistence.writeWay(new Way(idCounter.getAndAdd(1), edgeIds));
-		});
-		final Node begin = nodes.get(new Pair<>(0., 0.)), end = nodes.get(new Pair<>(5., 5.));
-		final NodeWeightFunction weightFunction = (lhs, rhs) ->
-				Math.abs(lhs.getLatitude() * (lhs.getLatitude() - lhs.getLongitude()));
-		final Router dijkstraRouter = new DijkstraRouter(persistence, weightFunction);
-		final Router aStarRouter = new AStarRouter(persistence, weightFunction);
 		final List<Node> expected = dijkstraRouter.getShortestPath(begin, end).getRoute();
 		final List<Node> actual = aStarRouter.getShortestPath(begin, end).getRoute();
 		assertEquals(expected, actual);

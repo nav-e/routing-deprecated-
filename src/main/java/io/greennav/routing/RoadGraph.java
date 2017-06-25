@@ -4,11 +4,14 @@ import de.topobyte.osm4j.core.model.impl.Node;
 import io.greennav.persistence.Persistence;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 import org.jgrapht.graph.specifics.Specifics;
+
+import java.util.HashSet;
 import java.util.Set;
 
 public class RoadGraph extends SimpleDirectedWeightedGraph<Node, RoadEdge> {
-    private Persistence persistence;
-    private NodeWeightFunction nodeWeightFunction;
+    private final Persistence persistence;
+    private final NodeWeightFunction nodeWeightFunction;
+    private final Set<Node> cachedNeighbors = new HashSet<>();
 
     RoadGraph(Persistence persistence, NodeWeightFunction nodeWeightFunction) {
         super(RoadEdge.class);
@@ -16,12 +19,28 @@ public class RoadGraph extends SimpleDirectedWeightedGraph<Node, RoadEdge> {
         this.nodeWeightFunction = nodeWeightFunction;
     }
 
-    Set<Node> getNeighbors(Node node) {
-        return persistence.getNeighbors(node);
+    void initRouting(Node source, Node target) {
+        addVertex(source);
+        addVertex(target);
     }
 
-    NodeWeightFunction getNodeWeightFunction() {
-        return nodeWeightFunction;
+    void finishRouting() {
+        new HashSet<>(edgeSet()).forEach(this::removeEdge);
+        new HashSet<>(vertexSet()).forEach(this::removeVertex);
+        cachedNeighbors.clear();
+    }
+
+    void cacheNeighborsIfAbsent(Node node) {
+        if (!cachedNeighbors.contains(node)) {
+            final Set<Node> neighbors = persistence.getNeighbors(node);
+            neighbors.forEach(neighbor -> {
+                this.addVertex(neighbor);
+                final RoadEdge edge = addEdge(node, neighbor);
+                final double weight = nodeWeightFunction.apply(node, neighbor);
+                setEdgeWeight(edge, weight);
+            });
+            cachedNeighbors.add(node);
+        }
     }
 
     @Override
