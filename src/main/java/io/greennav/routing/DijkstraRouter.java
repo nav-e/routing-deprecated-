@@ -1,14 +1,19 @@
 package io.greennav.routing;
 
 import de.topobyte.osm4j.core.model.impl.Node;
+import io.greennav.persistence.Persistence;
 import javafx.util.Pair;
 import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import java.util.Collection;
 
 class DijkstraRouter extends Router {
+    DijkstraRouter(Persistence persistence, NodeWeightFunction weightFunction) {
+        super(persistence, weightFunction);
+    }
+
     DijkstraRouter(Collection<Node> nodes, Collection<Pair<Node, Node>> edges,
-                          MapNodeWeightFunction weightFunction) {
+                   NodeWeightFunction weightFunction) {
         super(nodes, edges, weightFunction);
     }
 

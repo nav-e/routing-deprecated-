@@ -2,36 +2,14 @@ package io.greennav.routing;
 
 import de.topobyte.osm4j.core.model.impl.Node;
 import io.greennav.persistence.Persistence;
-import javafx.util.Pair;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 import static spark.Spark.get;
 
 class RestAPI {
     void createServer(Persistence db) {
-        /*
-        Until Persistance is not integrated into Router, there will be a mockup of graph
-         */
-        final Node[] nodes_array = {
-                new Node(0, 0, 0),
-                new Node(1, 0, 1),
-                new Node(2, 1, 0),
-                new Node(3, 1, 1)
-        };
-        final List<Node> nodes = Arrays.asList(nodes_array);
-        final List<Pair<Node, Node>> edges = Arrays.asList(new Pair[] {
-                new Pair<>(nodes_array[0], nodes_array[1]),
-                new Pair<>(nodes_array[1], nodes_array[2]),
-                new Pair<>(nodes_array[1], nodes_array[3]),
-                new Pair<>(nodes_array[0], nodes_array[3])
-        });
-        Router router = new DijkstraRouter(nodes, edges, new DistanceComputerInKm());
-        /*
-        End mockup
-         */
+        Router router = new DijkstraRouter(db, new DistanceComputerInKm());
 
         JSONTransformer toJson = new JSONTransformer();
 

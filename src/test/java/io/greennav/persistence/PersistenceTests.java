@@ -9,17 +9,12 @@ import de.topobyte.osm4j.core.model.impl.Way;
 import gnu.trove.list.TLongList;
 import gnu.trove.list.linked.TLongLinkedList;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
 public class PersistenceTests {
     private Persistence db = new InMemoryPersistence();
 
@@ -92,11 +87,11 @@ public class PersistenceTests {
         ways.values().forEach(db::writeWay);
 
         assertEquals(
-                Arrays.stream(new Node[]{nodes.get(0L), nodes.get(2L), nodes.get(3L)}).collect(Collectors.toSet()),
+                Arrays.stream(new Node[]{nodes.get(2L), nodes.get(3L)}).collect(Collectors.toSet()),
                 db.getNeighbors(nodes.get(1L))
         );
         assertEquals(
-                Arrays.stream(new Node[]{nodes.get(1L)}).collect(Collectors.toSet()),
+                Collections.emptySet(),
                 db.getNeighbors(nodes.get(2L))
         );
     }

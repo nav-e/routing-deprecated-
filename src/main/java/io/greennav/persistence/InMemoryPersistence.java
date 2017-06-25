@@ -31,7 +31,6 @@ public class InMemoryPersistence implements Persistence {
             final Long toId = way.getNodeId(i + 1);
 
             putOrCreateNeighbor(fromId, toId);
-            putOrCreateNeighbor(toId, fromId);
         }
     }
 
@@ -49,7 +48,6 @@ public class InMemoryPersistence implements Persistence {
             final Long toId = way.getNodeId(i + 1);
 
             removeNeighbor(fromId, toId);
-            removeNeighbor(toId, fromId);
         }
     }
 
@@ -141,13 +139,9 @@ public class InMemoryPersistence implements Persistence {
     public Set<Node> getNeighbors(Node node) {
         final Set<Node> result = new HashSet<>();
 
-        if (!neighbors.containsKey(node.getId())) {
-            System.out.println("NOT IN MEMORY: " + node.getId());
-            return result;
-        }
-
-        for (Long id : neighbors.get(node.getId())) {
-            result.add(nodes.get(id));
+        if (neighbors.containsKey(node.getId())) {
+            final Set<Long> nodeNeighbors = neighbors.get(node.getId());
+            nodeNeighbors.forEach(id -> result.add(nodes.get(id)));
         }
 
         return result;
