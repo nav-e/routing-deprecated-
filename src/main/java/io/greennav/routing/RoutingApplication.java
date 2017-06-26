@@ -16,10 +16,10 @@ public class RoutingApplication {
 		BasicConfigurator.configure();
 
 		try {
-			Persistence db = new InMemoryPersistence();
-			OSMSource src = new PBFSource("data/monaco-latest.osm.pbf");
+			final Persistence db = new InMemoryPersistence();
+			final OSMSource src = new PBFSource("data/monaco-latest.osm.pbf");
 			src.persistTo(db);
-			RestAPI api = new RestAPI();
+			final RestAPI api = new RestAPI();
 			api.createServer(db);
 		} catch (Exception ex) {
 			ex.printStackTrace();

@@ -5,10 +5,10 @@ import de.topobyte.osm4j.core.model.util.OsmModelUtil;
 import java.util.Map;
 
 public class JSONNode {
-    public long id;
-    public double longitude;
-    public double latitude;
-    public Map<String, String> tags;
+    public final long id;
+    public final double longitude;
+    public final double latitude;
+    public final Map<String, String> tags;
 
     public JSONNode(Node node) {
         this.id = node.getId();

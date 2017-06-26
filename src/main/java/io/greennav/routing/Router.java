@@ -11,6 +11,7 @@ import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -22,12 +23,12 @@ abstract class Router {
     }
 
     Router(Collection<Node> nodes, Collection<Pair<Node, Node>> edges, NodeWeightFunction weightFunction) {
-        Persistence persistence = new InMemoryPersistence();
+        final Persistence persistence = new InMemoryPersistence();
         nodes.forEach(persistence::writeNode);
-        AtomicLong idCounter = new AtomicLong();
+        final AtomicLong idCounter = new AtomicLong();
         edges.forEach(pair -> {
-            Node source = pair.getKey();
-            Node target = pair.getValue();
+            final Node source = pair.getKey();
+            final Node target = pair.getValue();
             final TLongList edgeIds = new TLongArrayList(new long[]{source.getId(), target.getId()});
             persistence.writeWay(new Way(idCounter.getAndAdd(1), edgeIds));
         });
@@ -35,12 +36,15 @@ abstract class Router {
     }
 
     Route getShortestPath(Node start, Node finish) {
-        graph.initRouting(start, finish);
+        graph.addVertex(start);
+        graph.addVertex(finish);
         final Instant begin = Instant.now();
         final List<Node> routeNodes = getShortestPathAlgorithm(start, finish).getPath(start, finish).getVertexList();
         final Instant end = Instant.now();
         final long durationInMillis = Duration.between(begin, end).toMillis();
-        graph.finishRouting();
+        new HashSet<>(graph.edgeSet()).forEach(graph::removeEdge);
+        new HashSet<>(graph.vertexSet()).forEach(graph::removeVertex);
+        graph.resetCache();
         return new Route(routeNodes, durationInMillis);
     }
 
