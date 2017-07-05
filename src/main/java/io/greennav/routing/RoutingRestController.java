@@ -8,16 +8,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 public class RoutingRestController {
     final private Persistence db;
-    final private Router router;
+    final private NodeWeightFunction weightFunction = new DistanceComputerInKm();
+    private Router router;
 
     @Autowired
     RoutingRestController(Persistence db) {
         this.db = db;
-        this.router = new AStarRouter(db, new DistanceComputerInKm());
+        this.router = new AStarRouter(db, weightFunction);
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/query/{name}")
@@ -25,10 +27,20 @@ public class RoutingRestController {
         return db.queryNodes("name", name);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/from/{fromId}/to/{toId}")
-    Collection<Node> getShortestPath(@PathVariable Long fromId, @PathVariable Long toId) {
+    @RequestMapping(method = RequestMethod.GET, path = "/{fromId}/{toId}/{algorithm}")
+    List<Node> getShortestPath(@PathVariable Long fromId, @PathVariable Long toId, @PathVariable String algorithm) {
         final Node fromNode = db.getNodeById(fromId);
         final Node toNode = db.getNodeById(toId);
+        switch (algorithm) {
+            case "dijkstra":
+                router = new DijkstraRouter(db, weightFunction);
+                break;
+            case "astar":
+                router = new AStarRouter(db, weightFunction);
+                break;
+            default:
+                break;
+        }
         return router.getShortestPath(fromNode, toNode).getRoute();
     }
 }
