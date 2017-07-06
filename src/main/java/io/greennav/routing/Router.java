@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 abstract class Router {
-    protected final RoadGraph graph;
+    final RoadGraph graph;
 
     Router(Persistence persistence, NodeWeightFunction weightFunction) {
         this.graph = new RoadGraph(persistence, weightFunction);
