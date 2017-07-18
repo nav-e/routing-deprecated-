@@ -18,8 +18,10 @@ public class RoadGraph extends SimpleDirectedWeightedGraph<Node, RoadEdge> {
         this.nodeWeightFunction = nodeWeightFunction;
     }
 
-    void resetCache() {
+    void reset() {
         cachedNeighbors.clear();
+        new HashSet<>(edgeSet()).forEach(this::removeEdge);
+        new HashSet<>(vertexSet()).forEach(this::removeVertex);
     }
 
     void cacheNeighborsIfAbsent(Node node) {

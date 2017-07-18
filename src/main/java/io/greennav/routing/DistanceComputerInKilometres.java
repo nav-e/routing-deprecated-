@@ -3,7 +3,7 @@ package io.greennav.routing;
 import de.topobyte.osm4j.core.model.impl.Node;
 import java.lang.Double;
 
-public final class DistanceComputerInKm extends DistanceComputer {
+final class DistanceComputerInKilometres extends DistanceComputer {
     @Override
     public Double apply(Node lhs, Node rhs) {
         final double lhs_lon = lhs.getLongitude();

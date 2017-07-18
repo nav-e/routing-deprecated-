@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 public class RoutingRestController {
     final private Persistence db;
-    final private NodeWeightFunction weightFunction = new DistanceComputerInKm();
+    final private NodeWeightFunction weightFunction = new DistanceComputerInKilometres();
     private Router router;
 
     @Autowired
@@ -42,5 +43,13 @@ public class RoutingRestController {
                 break;
         }
         return router.getShortestPath(fromNode, toNode).getRoute();
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path = "/range?startid={startid}&range={range}")
+    Set<Node> getAvailableRangeBorderNodes(@PathVariable("startid") Long startId,
+                                           @PathVariable Double range) {
+        final Node sourceNode = db.getNodeById(startId);
+        final Double rangeInKilometres = range / 1000;
+        return router.getBorderNodes(sourceNode, rangeInKilometres);
     }
 }

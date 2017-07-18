@@ -56,7 +56,7 @@ public class RoutingTests {
 				new Pair<>(nodesArray[1], nodesArray[3]),
 				new Pair<>(nodesArray[0], nodesArray[3])
 		);
-		final Router router = new DijkstraRouter(nodes, edges, new DistanceComputerInKm());
+		final Router router = new DijkstraRouter(nodes, edges, new DistanceComputerInKilometres());
 		final Node begin = nodesArray[0];
 		final Node end = nodesArray[nodesArray.length - 1];
 		final List<Node> expected = Arrays.asList(begin, end);
