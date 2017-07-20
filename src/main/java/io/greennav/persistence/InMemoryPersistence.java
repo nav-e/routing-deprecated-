@@ -10,7 +10,8 @@ public class InMemoryPersistence implements Persistence {
     private final Map<Long, Node> nodes = new HashMap<>();
     private final Map<Long, Way> ways = new HashMap<>();
     private final Map<Long, Relation> relations = new HashMap<>();
-    private final Map<Long, Set<Long>> neighbors = new HashMap<>();
+    private final Map<Long, Set<Long>> inNeighbors = new HashMap<>();
+    private final Map<Long, Set<Long>> outNeighbors = new HashMap<>();
 
     @Override
     public void writeNode(Node node) {
@@ -35,8 +36,10 @@ public class InMemoryPersistence implements Persistence {
     }
 
     private void putOrCreateNeighbor(Long fromId, Long toId) {
-        neighbors.putIfAbsent(fromId, new HashSet<>());
-        neighbors.get(fromId).add(toId);
+        outNeighbors.putIfAbsent(fromId, new HashSet<>());
+        inNeighbors.putIfAbsent(toId, new HashSet<>());
+        outNeighbors.get(fromId).add(toId);
+        inNeighbors.get(toId).add(fromId);
     }
 
     @Override
@@ -52,10 +55,10 @@ public class InMemoryPersistence implements Persistence {
     }
 
     private void removeNeighbor(Long fromId, Long toId) {
-        neighbors.get(fromId).remove(toId);
+        outNeighbors.get(fromId).remove(toId);
 
-        if (neighbors.get(fromId).isEmpty()) {
-            neighbors.remove(fromId);
+        if (outNeighbors.get(fromId).isEmpty()) {
+            outNeighbors.remove(fromId);
         }
     }
 
@@ -91,7 +94,7 @@ public class InMemoryPersistence implements Persistence {
         for (Node node : nodes.values()) {
             final Map<String, String> tags = OsmModelUtil.getTagsAsMap(node);
 
-            if (getNeighbors(node).size() > 0
+            if (outgoingNeighbors(node).size() > 0
                     && tags.containsKey(key)
                     && tags.get(key).contains(value)) {
                 results.add(node);
@@ -135,15 +138,24 @@ public class InMemoryPersistence implements Persistence {
         return results;
     }
 
-    @Override
-    public Set<Node> getNeighbors(Node node) {
+    private Set<Node> getNeighbors(Node node, Map<Long, Set<Long>> container) {
         final Set<Node> result = new HashSet<>();
 
-        if (neighbors.containsKey(node.getId())) {
-            final Set<Long> nodeNeighbors = neighbors.get(node.getId());
+        if (outNeighbors.containsKey(node.getId())) {
+            final Set<Long> nodeNeighbors = container.get(node.getId());
             nodeNeighbors.forEach(id -> result.add(nodes.get(id)));
         }
 
         return result;
+    }
+
+    @Override
+    public Set<Node> incomingNeighbors(Node node) {
+        return getNeighbors(node, inNeighbors);
+    }
+
+    @Override
+    public Set<Node> outgoingNeighbors(Node node) {
+        return getNeighbors(node, outNeighbors);
     }
 }

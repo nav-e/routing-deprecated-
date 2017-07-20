@@ -6,11 +6,13 @@ import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 import org.jgrapht.graph.specifics.Specifics;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 
 public class RoadGraph extends SimpleDirectedWeightedGraph<Node, RoadEdge> {
     private final Persistence persistence;
     private final NodeWeightFunction nodeWeightFunction;
-    private final Set<Node> cachedNeighbors = new HashSet<>();
+    private final Set<Node> cachedIncomingNeighbors = new HashSet<>();
+    private final Set<Node> cachedOutgoingNeighbors = new HashSet<>();
 
     RoadGraph(Persistence persistence, NodeWeightFunction nodeWeightFunction) {
         super(RoadEdge.class);
@@ -19,22 +21,42 @@ public class RoadGraph extends SimpleDirectedWeightedGraph<Node, RoadEdge> {
     }
 
     void reset() {
-        cachedNeighbors.clear();
+        cachedIncomingNeighbors.clear();
+        cachedOutgoingNeighbors.clear();
         new HashSet<>(edgeSet()).forEach(this::removeEdge);
         new HashSet<>(vertexSet()).forEach(this::removeVertex);
     }
 
-    void cacheNeighborsIfAbsent(Node node) {
-        if (!cachedNeighbors.contains(node)) {
-            final Set<Node> neighbors = persistence.getNeighbors(node);
+    private void cacheNeighborsIfAbsent(Node node, boolean outgoing) {
+        final Set<Node> container = outgoing ? cachedOutgoingNeighbors : cachedIncomingNeighbors;
+        final Function<Node, Set<Node>> neighborsFunction = outgoing ?
+                persistence::outgoingNeighbors : persistence::incomingNeighbors;
+        if (!container.contains(node)) {
+            final Set<Node> neighbors = neighborsFunction.apply(node);
             neighbors.forEach(neighbor -> {
-                this.addVertex(neighbor);
-                final RoadEdge edge = addEdge(node, neighbor);
+                addVertex(neighbor);
+                final RoadEdge edge = outgoing ? getOrAddEdge(node, neighbor) : getOrAddEdge(neighbor, node);
                 final double weight = nodeWeightFunction.apply(node, neighbor);
                 setEdgeWeight(edge, weight);
             });
-            cachedNeighbors.add(node);
+            container.add(node);
         }
+    }
+
+    void cacheIncomingNeighborsIfAbsent(Node node) {
+        cacheNeighborsIfAbsent(node, false);
+    }
+
+    void cacheOutgoingNeighborsIfAbsent(Node node) {
+        cacheNeighborsIfAbsent(node, true);
+    }
+
+    private RoadEdge getOrAddEdge(Node sourceVertex, Node targetVertex) {
+        RoadEdge edge = getEdge(sourceVertex, targetVertex);
+        if (edge == null) {
+            edge = addEdge(sourceVertex, targetVertex);
+        }
+        return edge;
     }
 
     @Override

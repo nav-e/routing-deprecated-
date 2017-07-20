@@ -1,21 +1,22 @@
-package io.greennav.routing.utils;
+package io.greennav.routing;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
+import de.topobyte.osm4j.core.model.impl.Node;
 import org.jgrapht.*;
 import org.jgrapht.util.*;
 
-public class DijkstraClosestFirstIteratorWithRadiusBreakCallback<V, E> implements Iterator<V> {
-    private final Graph<V, E> graph;
+class DijkstraClosestFirstIteratorWithCallback implements Iterator<Node> {
+    private final RoadGraph graph;
     private final double radius;
     private final FibonacciHeap<QueueEntry> heap;
-    private final Map<V, FibonacciHeapNode<QueueEntry>> seen;
-    private final Consumer<V> callback;
+    private final Map<Node, FibonacciHeapNode<QueueEntry>> seen;
+    private final Consumer<Node> nodeConsumer;
+    private final Consumer<Node> predecessorConsumer;
+    private final Consumer<Node> successorConsumer;
 
-    public DijkstraClosestFirstIteratorWithRadiusBreakCallback(Graph<V, E> graph, V source, Consumer<V> callback,
-                                                        double radius) {
+    DijkstraClosestFirstIteratorWithCallback(RoadGraph graph, Node source, double radius, Consumer<Node> nodeConsumer,
+                                             Consumer<Node> predecessorConsumer, Consumer<Node> successorConsumer) {
         this.graph = Objects.requireNonNull(graph, "Graph cannot be null");
         if (radius < 0.0) {
             throw new IllegalArgumentException("Radius must be non-negative");
@@ -23,8 +24,9 @@ public class DijkstraClosestFirstIteratorWithRadiusBreakCallback<V, E> implement
         this.radius = radius;
         this.heap = new FibonacciHeap<>();
         this.seen = new HashMap<>();
-        this.callback = callback;
-
+        this.nodeConsumer = nodeConsumer;
+        this.predecessorConsumer = predecessorConsumer;
+        this.successorConsumer = successorConsumer;
         updateDistance(source, null, 0d);
     }
 
@@ -36,7 +38,6 @@ public class DijkstraClosestFirstIteratorWithRadiusBreakCallback<V, E> implement
         FibonacciHeapNode<QueueEntry> vNode = heap.min();
         double vDistance = vNode.getKey();
         if (radius < vDistance) {
-            processHeapNodesNeighbors();
             heap.clear();
             return false;
         }
@@ -44,39 +45,35 @@ public class DijkstraClosestFirstIteratorWithRadiusBreakCallback<V, E> implement
     }
 
     @Override
-    public V next() {
+    public Node next() {
         if (!hasNext()) {
             throw new NoSuchElementException();
         }
 
         FibonacciHeapNode<QueueEntry> vNode = heap.removeMin();
-        V v = vNode.getData().v;
+        Node v = vNode.getData().v;
         double vDistance = vNode.getKey();
+        nodeConsumer.accept(v);
 
-        Set<E> outgoingEdges = graph.edgesOf(v).stream()
-                                    .filter(edge -> graph.getEdgeSource(edge).equals(v))
-                                    .collect(Collectors.toSet());
-        for (E e : outgoingEdges) {
-            V u = Graphs.getOppositeVertex(graph, e, v);
+        for (RoadEdge e : graph.incomingEdgesOf(v)) {
+            Node u = Graphs.getOppositeVertex(graph, e, v);
+            predecessorConsumer.accept(u);
+        }
+
+        for (RoadEdge e : graph.outgoingEdgesOf(v)) {
+            Node u = Graphs.getOppositeVertex(graph, e, v);
             double eWeight = graph.getEdgeWeight(e);
             if (eWeight < 0.0) {
                 throw new IllegalArgumentException("Negative edge weight not allowed");
             }
             updateDistance(u, e, vDistance + eWeight);
+            successorConsumer.accept(u);
         }
 
         return v;
     }
 
-    private void processHeapNodesNeighbors() {
-        while (!heap.isEmpty()) {
-            QueueEntry entry = heap.removeMin().getData();
-            V source = graph.getEdgeSource(entry.e);
-            callback.accept(source);
-        }
-    }
-
-    private void updateDistance(V v, E e, double distance) {
+    private void updateDistance(Node v, RoadEdge e, double distance) {
         FibonacciHeapNode<QueueEntry> node = seen.get(v);
         if (node == null) {
             node = new FibonacciHeapNode<>(new QueueEntry(e, v));
@@ -91,10 +88,10 @@ public class DijkstraClosestFirstIteratorWithRadiusBreakCallback<V, E> implement
     }
 
     class QueueEntry {
-        E e;
-        V v;
+        RoadEdge e;
+        Node v;
 
-        QueueEntry(E e, V v) {
+        QueueEntry(RoadEdge e, Node v) {
             this.e = e;
             this.v = v;
         }

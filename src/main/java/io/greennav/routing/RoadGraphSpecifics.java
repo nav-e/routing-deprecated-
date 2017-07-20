@@ -14,8 +14,14 @@ public class RoadGraphSpecifics extends FastLookupDirectedSpecifics<Node, RoadEd
     }
 
     @Override
+    public Set<RoadEdge> incomingEdgesOf(Node node) {
+        getRoadGraph().cacheIncomingNeighborsIfAbsent(node);
+        return getEdgeContainer(node).getUnmodifiableIncomingEdges();
+    }
+
+    @Override
     public Set<RoadEdge> outgoingEdgesOf(Node node) {
-        getRoadGraph().cacheNeighborsIfAbsent(node);
+        getRoadGraph().cacheOutgoingNeighborsIfAbsent(node);
         return getEdgeContainer(node).getUnmodifiableOutgoingEdges();
     }
 }

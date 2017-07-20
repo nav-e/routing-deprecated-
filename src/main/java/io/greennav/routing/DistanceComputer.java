@@ -12,4 +12,8 @@ abstract class DistanceComputer implements NodeWeightFunction {
     static double rad2deg(double rad) {
         return (rad * 180 / Math.PI);
     }
+
+    static double haversine(double phi) { return (1 - Math.cos(phi)) / 2.0;}
+
+    static final double kEarthRadiusInMetres = 6378137.0;
 }

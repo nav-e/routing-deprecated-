@@ -6,7 +6,6 @@ import gnu.trove.list.TLongList;
 import gnu.trove.list.array.TLongArrayList;
 import io.greennav.persistence.InMemoryPersistence;
 import io.greennav.persistence.Persistence;
-import io.greennav.routing.utils.DijkstraClosestFirstIteratorWithRadiusBreakCallback;
 import javafx.util.Pair;
 import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import java.time.Duration;
@@ -51,18 +50,15 @@ abstract class Router {
     abstract ShortestPathAlgorithm<Node, RoadEdge> getShortestPathAlgorithm(Node source, Node target);
 
     Set<Node> getBorderNodes(Node source, double range) {
-        if (!graph.containsVertex(source)) {
-            throw new IllegalArgumentException("Graph must contain the source vertex");
-        }
-
         if (range < 0.0) {
             throw new IllegalArgumentException("Range must be non-negative");
         }
 
         graph.addVertex(source);
         final Set<Node> borderNodes = new HashSet<>();
-        final DijkstraClosestFirstIteratorWithRadiusBreakCallback<Node, RoadEdge> it =
-                new DijkstraClosestFirstIteratorWithRadiusBreakCallback<>(graph, source, borderNodes::add, range);
+        final DijkstraClosestFirstIteratorWithCallback it =
+                new DijkstraClosestFirstIteratorWithCallback(graph,source, range,
+                                                             borderNodes::add, borderNodes::remove, node -> {});
 
         while (it.hasNext()) {
             it.next();
