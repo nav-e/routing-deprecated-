@@ -37,11 +37,4 @@ public class RoutingRestController {
         }
         return router.getShortestPath(fromNode, toNode).getRoute();
     }
-
-    @RequestMapping(method = RequestMethod.GET, path = "/range")
-    Set<Node> getAvailableRangeBorderNodes(@RequestParam(value = "from") Long fromId,
-                                           @RequestParam(value = "range") Double range) {
-        final Node sourceNode = db.getNodeById(fromId);
-        return router.getBorderNodes(sourceNode, range);
-    }
 }

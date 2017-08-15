@@ -10,10 +10,7 @@ import javafx.util.Pair;
 import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 abstract class Router {
@@ -48,23 +45,4 @@ abstract class Router {
     }
 
     abstract ShortestPathAlgorithm<Node, RoadEdge> getShortestPathAlgorithm(Node source, Node target);
-
-    Set<Node> getBorderNodes(Node source, double range) {
-        if (range < 0.0) {
-            throw new IllegalArgumentException("Range must be non-negative");
-        }
-
-        graph.addVertex(source);
-        final Set<Node> borderNodes = new HashSet<>();
-        final DijkstraClosestFirstIteratorWithCallback it =
-                new DijkstraClosestFirstIteratorWithCallback(graph,source, range,
-                                                             borderNodes::add, borderNodes::remove, node -> {});
-
-        while (it.hasNext()) {
-            it.next();
-        }
-
-        graph.reset();
-        return borderNodes;
-    }
 }
