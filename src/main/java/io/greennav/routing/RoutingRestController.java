@@ -2,10 +2,14 @@ package io.greennav.routing;
 
 import de.topobyte.osm4j.core.model.impl.Node;
 import io.greennav.persistence.Persistence;
+import io.greennav.routing.roadgraph.impl.DistanceComputerInMetres;
+import io.greennav.routing.roadgraph.iface.NodeWeightFunction;
+import io.greennav.routing.router.AStarRouter;
+import io.greennav.routing.router.DijkstraRouter;
+import io.greennav.routing.router.Router;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 public class RoutingRestController {

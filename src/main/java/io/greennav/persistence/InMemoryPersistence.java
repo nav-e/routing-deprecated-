@@ -26,11 +26,9 @@ public class InMemoryPersistence implements Persistence {
     @Override
     public void writeWay(Way way) {
         ways.put(way.getId(), way);
-
-        for (int i = 0; i < way.getNumberOfNodes() - 1; i++) {
+        for (int i = 0; i < way.getNumberOfNodes() - 1; ++i) {
             final Long fromId = way.getNodeId(i);
             final Long toId = way.getNodeId(i + 1);
-
             putOrCreateNeighbor(fromId, toId);
         }
     }
@@ -45,11 +43,9 @@ public class InMemoryPersistence implements Persistence {
     @Override
     public void removeWay(Way way) {
         ways.remove(way.getId());
-
-        for (int i = 0; i < way.getNumberOfNodes() - 1; i++) {
+        for (int i = 0; i < way.getNumberOfNodes() - 1; ++i) {
             final Long fromId = way.getNodeId(i);
             final Long toId = way.getNodeId(i + 1);
-
             removeNeighbor(fromId, toId);
         }
     }
@@ -90,62 +86,51 @@ public class InMemoryPersistence implements Persistence {
     @Override
     public Collection<Node> queryNodes(String key, String value) {
         final List<Node> results = new ArrayList<>();
-
         for (Node node : nodes.values()) {
             final Map<String, String> tags = OsmModelUtil.getTagsAsMap(node);
-
             if (outgoingNeighbors(node).size() > 0
                     && tags.containsKey(key)
                     && tags.get(key).contains(value)) {
                 results.add(node);
             }
         }
-
         return results;
     }
 
     @Override
     public Collection<Way> queryEdges(String key, String value) {
         final List<Way> results = new ArrayList<>();
-
         for (Way way : ways.values()) {
             final Map<String, String> tags = OsmModelUtil.getTagsAsMap(way);
-
             if (tags.containsKey(key)) {
                 if (tags.get(key).contains(value)) {
                     results.add(way);
                 }
             }
         }
-
         return results;
     }
 
     @Override
     public Collection<Relation> queryRelations(String key, String value) {
         final List<Relation> results = new ArrayList<>();
-
         for (Relation relation : relations.values()) {
             final Map<String, String> tags = OsmModelUtil.getTagsAsMap(relation);
-
             if (tags.containsKey(key)) {
                 if (tags.get(key).contains(value)) {
                     results.add(relation);
                 }
             }
         }
-
         return results;
     }
 
     private Set<Node> getNeighbors(Node node, Map<Long, Set<Long>> container) {
         final Set<Node> result = new HashSet<>();
-
-        if (outNeighbors.containsKey(node.getId())) {
+        if (container.containsKey(node.getId())) {
             final Set<Long> nodeNeighbors = container.get(node.getId());
             nodeNeighbors.forEach(id -> result.add(nodes.get(id)));
         }
-
         return result;
     }
 
@@ -157,5 +142,15 @@ public class InMemoryPersistence implements Persistence {
     @Override
     public Set<Node> outgoingNeighbors(Node node) {
         return getNeighbors(node, outNeighbors);
+    }
+
+    @Override
+    public Collection<Node> getAllNodes() {
+        return nodes.values();
+    }
+
+    @Override
+    public Collection<Way> getAllWays() {
+        return ways.values();
     }
 }

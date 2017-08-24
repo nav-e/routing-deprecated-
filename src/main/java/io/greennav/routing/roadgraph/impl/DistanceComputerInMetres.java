@@ -1,9 +1,9 @@
-package io.greennav.routing;
+package io.greennav.routing.roadgraph.impl;
 
 import de.topobyte.osm4j.core.model.impl.Node;
 import java.lang.Double;
 
-final class DistanceComputerInMetres extends DistanceComputer {
+public final class DistanceComputerInMetres extends DistanceComputer {
     @Override
     public Double apply(Node lhs, Node rhs) {
         final double lhsLon = deg2rad(lhs.getLongitude());

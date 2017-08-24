@@ -1,4 +1,4 @@
-package io.greennav.routing;
+package io.greennav.routing.roadgraph.impl;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 

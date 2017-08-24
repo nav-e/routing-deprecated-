@@ -1,8 +1,9 @@
-package io.greennav.routing;
+package io.greennav.routing.roadgraph.impl;
 
 import de.topobyte.osm4j.core.model.impl.Node;
+import io.greennav.routing.roadgraph.iface.NodeWeightFunction;
 
-abstract class DistanceComputer implements NodeWeightFunction {
+public abstract class DistanceComputer implements NodeWeightFunction {
     public abstract Double apply(Node lhs, Node rhs);
 
     static double deg2rad(double deg) {

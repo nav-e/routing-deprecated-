@@ -1,11 +1,17 @@
 package io.greennav.routing;
 
 import de.topobyte.osm4j.core.model.impl.Node;
+import io.greennav.routing.roadgraph.impl.DistanceComputerInMetres;
+import io.greennav.routing.roadgraph.iface.NodeWeightFunction;
+import io.greennav.routing.router.AStarRouter;
+import io.greennav.routing.router.ContractionHierarchiesRouter;
+import io.greennav.routing.router.DijkstraRouter;
+import io.greennav.routing.router.Router;
 import javafx.util.Pair;
 import org.junit.Test;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class RoutingTests {
 
@@ -22,11 +28,8 @@ public class RoutingTests {
 					for (double deltaLon : new double[]{-1., 0., 1.}) {
 						final double newLat = lat + deltaLat, newLon = lon + deltaLon;
 						if (newLat < 0. || newLat > 5. || newLon < 0. || newLon > 5.) continue;
-						final long id = idCounter.getAndAdd(1);
-						nodes.putIfAbsent(
-								new Pair<>(newLat, newLon),
-								new Node(id, newLat, newLon)
-						);
+						final long id = idCounter.getAndIncrement();
+						nodes.putIfAbsent(new Pair<>(newLat, newLon), new Node(id, newLat, newLon));
 					}
 				}
 				final Node source = nodes.get(new Pair<>(lat, lon));
@@ -71,11 +74,29 @@ public class RoutingTests {
 		createGridGraph(nodes, edges);
 		final Node begin = nodes.get(new Pair<>(0., 0.)), end = nodes.get(new Pair<>(5., 5.));
 		final NodeWeightFunction weightFunction = (lhs, rhs) ->
-				Math.abs(lhs.getLatitude() * (lhs.getLatitude() - lhs.getLongitude()));
+				Math.abs(lhs.getLatitude() - rhs.getLatitude()) + Math.abs(lhs.getLongitude() - rhs.getLongitude());
 		final Router dijkstraRouter = new DijkstraRouter(nodes.values(), edges, weightFunction);
 		final Router aStarRouter = new AStarRouter(nodes.values(), edges, weightFunction);
-		final List<Node> expected = dijkstraRouter.getShortestPath(begin, end).getRoute();
-		final List<Node> actual = aStarRouter.getShortestPath(begin, end).getRoute();
-		assertEquals(expected, actual);
+		final double expected = dijkstraRouter.getShortestPathWeight(begin, end);
+		final double actual = aStarRouter.getShortestPathWeight(begin, end);
+		assertTrue(expected > 0d && actual > 0d);
+		assertEquals(expected, actual, 1e-6);
+	}
+
+	@Test
+	public void contractionHierarchiesTest() {
+		final Map<Pair<Double, Double>, Node> nodes = new HashMap<>();
+		final List<Pair<Node, Node>> edges = new ArrayList<>();
+		createGridGraph(nodes, edges);
+		final Node begin = nodes.get(new Pair<>(0., 0.)), end = nodes.get(new Pair<>(5., 5.));
+		final NodeWeightFunction weightFunction = (lhs, rhs) ->
+				Math.abs(lhs.getLatitude() - rhs.getLatitude()) + Math.abs(lhs.getLongitude() - rhs.getLongitude());
+		final Router dijkstraRouter = new DijkstraRouter(nodes.values(), edges, weightFunction);
+		final Router contractionHierarchiesRouter = new ContractionHierarchiesRouter(
+				nodes.values(), edges, weightFunction);
+		final double expected = dijkstraRouter.getShortestPathWeight(begin, end);
+		final double actual = contractionHierarchiesRouter.getShortestPathWeight(begin, end);
+		assertTrue(expected > 0d && actual > 0d);
+		assertEquals(expected, actual, 1e-6);
 	}
 }

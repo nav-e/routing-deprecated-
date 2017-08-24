@@ -34,4 +34,8 @@ public interface Persistence {
     Set<Node> incomingNeighbors(Node node);
 
     Set<Node> outgoingNeighbors(Node node);
+
+    Collection<Node> getAllNodes();
+
+    Collection<Way> getAllWays();
 }
