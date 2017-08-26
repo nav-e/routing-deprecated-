@@ -7,9 +7,12 @@ import io.greennav.routing.shortestpath.DistanceEstimate;
 import io.greennav.routing.shortestpath.SearchManager;
 import io.greennav.routing.utils.QueueEntry;
 import org.jgrapht.Graphs;
+import org.jgrapht.graph.specifics.ArrayUnenforcedSetEdgeSetFactory;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -18,18 +21,18 @@ public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
     public final SearchManager forwardSearchManager;
     public final SearchManager reverseSearchManager;
     private final List<Node> touchingEdgesSources;
-    private final Set<RoadEdgeCH> edgesContainer;
+    private final Map<Node, DirectedEdgeContainer<Node, RoadEdgeCH>> shortcutsContainer;
     public final Map<Node, RoadGraphCHNodeDescriptor> nodeDescriptors;
 
     public RoadGraphCH(Persistence persistence, NodeWeightFunction nodeWeightFunction) {
         super(persistence, nodeWeightFunction, RoadEdgeCH.class);
         fullInitialize();
-        edgesContainer = new LinkedHashSet<>(edgeSet());
         nodeDescriptors = new LinkedHashMap<>();
         vertexSet().forEach(node -> nodeDescriptors.put(node, new RoadGraphCHNodeDescriptor()));
         forwardSearchManager = new SearchManager(this::outgoingEdgesOf, vertexSet());
         reverseSearchManager = new SearchManager(this::incomingEdgesOf, vertexSet());
         touchingEdgesSources = new ArrayList<>();
+        shortcutsContainer = new LinkedHashMap<>();
     }
 
     public Optional<Node> getIntermediateNode(final RoadEdgeCH edge) {
@@ -38,6 +41,23 @@ public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
 
     public void setIntermediateNode(final RoadEdgeCH edge, final Node node) {
         edge.setIntermediateNode(node);
+    }
+
+    @Override
+    protected void cacheNeighborsIfAbsent(final Node node, final boolean outgoing) {
+        final Set<Node> container = outgoing ? cachedOutgoingNeighbors : cachedIncomingNeighbors;
+        final Function<Node, Set<Node>> persistenceNeighborsFunction = outgoing ?
+                persistence::outgoingNeighbors : persistence::incomingNeighbors;
+        final Function<Node, Set<RoadEdgeCH>> shortcutsNeighborsFunction = outgoing ?
+                v -> shortcutsContainer.get(v).getUnmodifiableOutgoingEdges() :
+                v -> shortcutsContainer.get(v).getUnmodifiableIncomingEdges();
+        if (!container.contains(node)) {
+            addNeighborsByNode(node, persistenceNeighborsFunction, outgoing);
+            if (shortcutsContainer.containsKey(node)) {
+                addNeighborsByEdge(node, shortcutsNeighborsFunction, outgoing);
+            }
+            container.add(node);
+        }
     }
 
     private void AddTouchingEdge(final RoadEdgeCH edge) {
@@ -166,6 +186,20 @@ public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
         RemoveAllTouchingEdges();
     }
 
+    private void addShortcutToContainer(RoadEdgeCH edge, Node node) {
+        if (!shortcutsContainer.containsKey(node)) {
+            final ArrayUnenforcedSetEdgeSetFactory<Node, RoadEdgeCH> edgeSetFactory =
+                    new ArrayUnenforcedSetEdgeSetFactory<>();
+            shortcutsContainer.put(node, new DirectedEdgeContainer<>(edgeSetFactory, node));
+        }
+        final DirectedEdgeContainer<Node, RoadEdgeCH> directedEdgeContainer = shortcutsContainer.get(node);
+        if (getEdgeSource(edge) == node) {
+            directedEdgeContainer.addOutgoingEdge(edge);
+        } else if (getEdgeTarget(edge) == node) {
+            directedEdgeContainer.addIncomingEdge(edge);
+        }
+    }
+
     private void AddShortcuts(final Node contractingNode, final long witnessPathEdgeRadius) {
         BiConsumer<RoadEdgeCH, RoadEdgeCH> addShortcutIfNecessary = (incomingEdge, outgoingEdge) -> {
             final double shortcutWeight = getEdgeWeight(incomingEdge) + getEdgeWeight(outgoingEdge);
@@ -174,7 +208,8 @@ public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
             final RoadEdgeCH searchResult = getEdge(source, target);
             final RoadEdgeCH shortcut = searchResult == null ? addEdge(source, target) : searchResult;
             if (searchResult == null) {
-                edgesContainer.add(shortcut);
+                addShortcutToContainer(shortcut, source);
+                addShortcutToContainer(shortcut, target);
             }
             if (searchResult == null || shortcutWeight < getEdgeWeight(searchResult)) {
                 setEdgeWeight(shortcut, shortcutWeight);
@@ -255,8 +290,6 @@ public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
             }
         }
         ContractNodes();
-        for (RoadEdgeCH edge : edgesContainer) {
-            addEdge(getEdgeSource(edge), getEdgeTarget(edge));
-        }
+        reset();
     }
 }

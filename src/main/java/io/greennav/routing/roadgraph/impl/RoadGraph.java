@@ -13,16 +13,17 @@ import java.util.function.Function;
 public class RoadGraph<E extends RoadEdge> extends SimpleDirectedWeightedGraph<Node, E> {
     protected final Persistence persistence;
     private final NodeWeightFunction nodeWeightFunction;
-    private final Set<Node> cachedIncomingNeighbors = new LinkedHashSet<>();
-    private final Set<Node> cachedOutgoingNeighbors = new LinkedHashSet<>();
+    protected final Set<Node> cachedIncomingNeighbors = new LinkedHashSet<>();
+    protected final Set<Node> cachedOutgoingNeighbors = new LinkedHashSet<>();
 
-    public RoadGraph(Persistence persistence, NodeWeightFunction nodeWeightFunction, Class<E> edgeClass) {
+    public RoadGraph(final Persistence persistence, final NodeWeightFunction nodeWeightFunction,
+                     final Class<E> edgeClass) {
         super(edgeClass);
         this.persistence = persistence;
         this.nodeWeightFunction = nodeWeightFunction;
     }
 
-    private void computeAndSetEdgeWeight(E edge) {
+    private void computeAndSetEdgeWeight(final E edge) {
         Node source = getEdgeSource(edge);
         Node target = getEdgeTarget(edge);
         final double weight = nodeWeightFunction.apply(source, target);
@@ -50,30 +51,46 @@ public class RoadGraph<E extends RoadEdge> extends SimpleDirectedWeightedGraph<N
         new LinkedHashSet<>(vertexSet()).forEach(this::removeVertex);
     }
 
-    private void cacheNeighborsIfAbsent(Node node, boolean outgoing) {
+    protected void addNeighborsByNode(final Node node, final Function<Node, Set<Node>> neighborsFunction,
+                                      final boolean outgoing) {
+        final Set<Node> neighbors = neighborsFunction.apply(node);
+        neighbors.forEach(neighbor -> {
+            addVertex(neighbor);
+            final E edge = outgoing ? getOrAddEdge(node, neighbor) : getOrAddEdge(neighbor, node);
+            computeAndSetEdgeWeight(edge);
+        });
+    }
+
+    protected void addNeighborsByEdge(final Node node, final Function<Node, Set<E>> neighborsFunction,
+                                      final boolean outgoing) {
+        final Set<E> neighbors = neighborsFunction.apply(node);
+        neighbors.forEach(containerEdge -> {
+            Node neighbor = Graphs.getOppositeVertex(this, containerEdge, node);
+            addVertex(neighbor);
+            final E addedEdge = outgoing ? getOrAddEdge(node, neighbor) : getOrAddEdge(neighbor, node);
+            setEdgeWeight(addedEdge, getEdgeWeight(containerEdge));
+        });
+    }
+
+    protected void cacheNeighborsIfAbsent(final Node node, final boolean outgoing) {
         final Set<Node> container = outgoing ? cachedOutgoingNeighbors : cachedIncomingNeighbors;
         final Function<Node, Set<Node>> neighborsFunction = outgoing ?
                 persistence::outgoingNeighbors : persistence::incomingNeighbors;
         if (!container.contains(node)) {
-            final Set<Node> neighbors = neighborsFunction.apply(node);
-            neighbors.forEach(neighbor -> {
-                addVertex(neighbor);
-                final E edge = outgoing ? getOrAddEdge(node, neighbor) : getOrAddEdge(neighbor, node);
-                computeAndSetEdgeWeight(edge);
-            });
+            addNeighborsByNode(node, neighborsFunction, outgoing);
             container.add(node);
         }
     }
 
-    void cacheIncomingNeighborsIfAbsent(Node node) {
+    void cacheIncomingNeighborsIfAbsent(final Node node) {
         cacheNeighborsIfAbsent(node, false);
     }
 
-    void cacheOutgoingNeighborsIfAbsent(Node node) {
+    void cacheOutgoingNeighborsIfAbsent(final Node node) {
         cacheNeighborsIfAbsent(node, true);
     }
 
-    private E getOrAddEdge(Node sourceVertex, Node targetVertex) {
+    private E getOrAddEdge(final Node sourceVertex, final Node targetVertex) {
         E edge = getEdge(sourceVertex, targetVertex);
         if (edge == null) {
             edge = addEdge(sourceVertex, targetVertex);
