@@ -253,9 +253,9 @@ public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
                 .count();
         final long edgeDifference = numberOfShortcuts.get() - inDegree - outDegree;
         final long numberOfContractedNeighbors = nodeDescriptor.numberOfContractedNeighbors;
-        final long shortuctCover = neighborsObtainingShortcut.size();
+        final long shortcutCover = neighborsObtainingShortcut.size();
         final long nodeLevel = nodeDescriptor.level;
-        return nodeDescriptor.importance = edgeDifference + numberOfContractedNeighbors + shortuctCover + nodeLevel;
+        return nodeDescriptor.importance = edgeDifference + numberOfContractedNeighbors + shortcutCover + nodeLevel;
     }
 
     public void PreprocessGraph() {

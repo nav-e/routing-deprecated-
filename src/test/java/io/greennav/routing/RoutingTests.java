@@ -189,4 +189,9 @@ public class RoutingTests {
 	public void test2() {
 		testFromFile("test2");
 	}
+
+	@Test
+	public void testNY() {
+		testFromFile("USA-road-d.NY");
+	}
 }
