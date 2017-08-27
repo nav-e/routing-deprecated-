@@ -49,6 +49,11 @@ public class ContractionHierarchiesShortestPath extends BaseShortestPathAlgorith
 
     private void processEdge(Node sourceNode, Node targetNode, LinkedList<RoadEdgeCH> roadEdges, boolean forward) {
         final RoadGraphCH graphCH = getRoadGraphCH();
+        if (forward) {
+            graphCH.outgoingEdgesOf(sourceNode);
+        } else {
+            graphCH.incomingEdgesOf(sourceNode);
+        }
         final RoadEdgeCH edge =
                 forward ? graphCH.getEdge(sourceNode, targetNode) : graphCH.getEdge(targetNode, sourceNode);
         final Optional<Node> intermediateNodeOptional = graphCH.getIntermediateNode(edge);
@@ -109,9 +114,13 @@ public class ContractionHierarchiesShortestPath extends BaseShortestPathAlgorith
         }
         searchManager.reset();
         otherSearchManager.reset();
-        List<RoadEdgeCH> roadEdges = restoreEdgeSequence(bestTouchingDescriptor.node, graphCH.forwardSearchManager,
-                                                         graphCH.reverseSearchManager);
-        return new GraphWalk<>(graph, source, target, roadEdges, bestTouchingDescriptor.estimateWeight);
+        if (Double.isFinite(bestTouchingDescriptor.estimateWeight)) {
+            List<RoadEdgeCH> roadEdges = restoreEdgeSequence(bestTouchingDescriptor.node, graphCH.forwardSearchManager,
+                                                             graphCH.reverseSearchManager);
+            return new GraphWalk<>(graph, source, target, roadEdges, bestTouchingDescriptor.estimateWeight);
+        } else {
+            return createEmptyPath(source, target);
+        }
     }
 
     private class BestTouchingDescriptor {

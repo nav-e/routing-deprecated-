@@ -36,8 +36,9 @@ public class SearchManager {
         }
         active = true;
         SearchManagerNodeDescriptor startNodeDescriptor = nodeDescriptors.get(node);
-        startNodeDescriptor.estimate.weight = 0;
+        startNodeDescriptor.estimate.weight = 0d;
         startNodeDescriptor.estimate.edgeNumber = 0;
+        startNodeDescriptor.estimate.predecessor = node;
         startNodeDescriptor.lastIterationUpdated = iterationIndex;
         queue.add(new QueueEntry<>(0d, node));
         this.weightRadius = weightRadius;

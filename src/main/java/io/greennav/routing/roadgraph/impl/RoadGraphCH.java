@@ -39,7 +39,7 @@ public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
         return edge.getIntermediateNode();
     }
 
-    public void setIntermediateNode(final RoadEdgeCH edge, final Node node) {
+    private void setIntermediateNode(final RoadEdgeCH edge, final Node node) {
         edge.setIntermediateNode(node);
     }
 
@@ -48,9 +48,14 @@ public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
         final Set<Node> container = outgoing ? cachedOutgoingNeighbors : cachedIncomingNeighbors;
         final Function<Node, Set<Node>> persistenceNeighborsFunction = outgoing ?
                 persistence::outgoingNeighbors : persistence::incomingNeighbors;
-        final Function<Node, Set<RoadEdgeCH>> shortcutsNeighborsFunction = outgoing ?
-                v -> shortcutsContainer.get(v).getUnmodifiableOutgoingEdges() :
-                v -> shortcutsContainer.get(v).getUnmodifiableIncomingEdges();
+        final Function<Node, Set<RoadEdgeCH>> shortcutsNeighborsFunction = v -> {
+            DirectedEdgeContainer<Node, RoadEdgeCH> edgeContainer = shortcutsContainer.get(v);
+            if (outgoing) {
+                return edgeContainer.getUnmodifiableOutgoingEdges();
+            } else {
+                return edgeContainer.getUnmodifiableIncomingEdges();
+            }
+        };
         if (!container.contains(node)) {
             addNeighborsByNode(node, persistenceNeighborsFunction, outgoing);
             if (shortcutsContainer.containsKey(node)) {
@@ -76,12 +81,12 @@ public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
         return nodeDescriptors.get(node).touchingEdges;
     }
 
-    private Stream<RoadEdgeCH> outgoingEdgesActiveFilter(final Set<RoadEdgeCH> edges) {
-        return edges.stream().filter(edge -> isActiveNode(getEdgeTarget(edge)));
+    private Stream<RoadEdgeCH> outgoingEdgesActiveFilter(final Node node) {
+        return outgoingEdgesOf(node).stream().filter(edge -> isActiveNode(getEdgeTarget(edge)));
     }
 
-    private Stream<RoadEdgeCH> incomingEdgesActiveFilter(final Set<RoadEdgeCH> edges) {
-        return edges.stream().filter(edge -> isActiveNode(getEdgeSource(edge)));
+    private Stream<RoadEdgeCH> incomingEdgesActiveFilter(final Node node) {
+        return incomingEdgesOf(node).stream().filter(edge -> isActiveNode(getEdgeSource(edge)));
     }
 
     private boolean isActiveNode(final Node node) {
@@ -96,15 +101,18 @@ public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
         neighborDescriptor.level = Math.max(neighborDescriptor.level, nodeDescriptor.level + 1);
     }
 
+    private void removeAllEdgesSafely(final Set<RoadEdgeCH> edges) {
+        removeAllEdges(edges.toArray(new RoadEdgeCH[edges.size()]));
+    }
+
     private void ContractNodes() {
         for (Map.Entry<Node, RoadGraphCHNodeDescriptor> entry : nodeDescriptors.entrySet()) {
             final Node node = entry.getKey();
             final RoadGraphCHNodeDescriptor descriptor = entry.getValue();
             if (descriptor.toContract) {
-                final Set<RoadEdgeCH> outgoingEdges = outgoingEdgesOf(node);
-                final Set<RoadEdgeCH> incomingEdges = incomingEdgesOf(node);
-                removeAllEdges(outgoingEdgesOf(node).toArray(new RoadEdgeCH[outgoingEdges.size()]));
-                removeAllEdges(incomingEdgesOf(node).toArray(new RoadEdgeCH[incomingEdges.size()]));
+                removeAllEdgesSafely(outgoingEdgesOf(node));
+                removeAllEdgesSafely(incomingEdgesOf(node));
+                removeVertex(node);
                 descriptor.toContract = false;
                 descriptor.isContracted = true;
             }
@@ -141,20 +149,18 @@ public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
 
     private void ContractNodeSimulation(final Node contractingNode, long witnessPathEdgeRadius,
                                         final BiConsumer<RoadEdgeCH, RoadEdgeCH> callback) {
-        final Set<RoadEdgeCH> incomingEdgesOfContractingNode = incomingEdgesOf(contractingNode);
-        final Set<RoadEdgeCH> outgoingEdgesOfContractingNode = outgoingEdgesOf(contractingNode);
-        if (incomingEdgesOfContractingNode.stream().anyMatch(edge -> !isActiveNode(getEdgeSource(edge)))) {
+        if (!incomingEdgesActiveFilter(contractingNode).findFirst().isPresent()) {
             return;
         }
-        if (outgoingEdgesOfContractingNode.stream().anyMatch(edge -> !isActiveNode(getEdgeTarget(edge)))) {
+        if (!outgoingEdgesActiveFilter(contractingNode).findFirst().isPresent()) {
             return;
         }
-        final Optional<RoadEdgeCH> edgeWithMaxWeightToTarget = outgoingEdgesActiveFilter(outgoingEdgesOfContractingNode)
+        final Optional<RoadEdgeCH> edgeWithMaxWeightToTarget = outgoingEdgesActiveFilter(contractingNode)
                 .max((lhs, rhs) -> (int)Math.signum(getEdgeWeight(lhs) - getEdgeWeight(rhs)));
         final double maxWeightToTarget = edgeWithMaxWeightToTarget.map(this::getEdgeWeight)
-                                                            .orElse(Double.POSITIVE_INFINITY);
+                                                                  .orElse(Double.POSITIVE_INFINITY);
         final Supplier<Stream<RoadEdgeCH>> intermediateEdgesStreamGetter =
-                () -> outgoingEdgesActiveFilter(outgoingEdgesOfContractingNode)
+                () -> outgoingEdgesActiveFilter(contractingNode)
                         .map(this::getEdgeTarget)
                         .map(this::incomingEdgesOf)
                         .flatMap(Collection::stream);
@@ -163,16 +169,13 @@ public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
                 .get().min((lhs, rhs) -> (int)(getEdgeWeight(lhs) - getEdgeWeight(rhs)));
         final double minWeightToIntermediate = edgeWithMinWeightToIntermediate.map(this::getEdgeWeight)
                                                                               .orElse(Double.POSITIVE_INFINITY);
-        final Set<RoadEdgeCH> activeIncomingEdges = incomingEdgesOfContractingNode
-                .stream()
-                .filter(edge -> isActiveNode(getEdgeSource(edge)))
-                .collect(Collectors.toSet());
+        final Set<RoadEdgeCH> activeIncomingEdges =
+                incomingEdgesActiveFilter(contractingNode).collect(Collectors.toSet());
         for (RoadEdgeCH incomingEdge : activeIncomingEdges) {
             final double radius = getEdgeWeight(incomingEdge) + maxWeightToTarget - minWeightToIntermediate;
             WitnessPathSearch(getEdgeSource(incomingEdge), radius, witnessPathEdgeRadius);
-            final Set<RoadEdgeCH> activeOutgoingEdges = outgoingEdgesOfContractingNode
-                    .stream()
-                    .filter(edge -> getEdgeSource(edge) != getEdgeTarget(edge) && isActiveNode(getEdgeTarget(edge)))
+            final Set<RoadEdgeCH> activeOutgoingEdges = outgoingEdgesActiveFilter(contractingNode)
+                    .filter(edge -> getEdgeSource(edge) != getEdgeTarget(edge))
                     .collect(Collectors.toSet());
             for (RoadEdgeCH outgoingEdge : activeOutgoingEdges) {
                 final double bypassPathWeight =
@@ -217,10 +220,10 @@ public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
             }
         };
         nodeDescriptors.get(contractingNode).toContract = true;
-        outgoingEdgesActiveFilter(outgoingEdgesOf(contractingNode))
+        outgoingEdgesActiveFilter(contractingNode)
                 .map(this::getEdgeTarget)
                 .forEach(neighbor -> UpdateContractionStatusOfNeighbor(contractingNode, neighbor));
-        incomingEdgesActiveFilter(incomingEdgesOf(contractingNode))
+        incomingEdgesActiveFilter(contractingNode)
                 .map(this::getEdgeSource)
                 .forEach(neighbor -> UpdateContractionStatusOfNeighbor(contractingNode, neighbor));
         ContractNodeSimulation(contractingNode, witnessPathEdgeRadius, addShortcutIfNecessary);
@@ -277,13 +280,14 @@ public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
                 if (numberOfContractedNodes.get() % kNumIterationsToUpdate == 0) {
                     ContractNodes();
                     queue.clear();
-                    nodeDescriptors.entrySet().stream()
-                                   .filter(entry -> !entry.getValue().isContracted)
-                                   .forEach(entry -> {
-                                       final long importance = entry.getValue().importance;
-                                       final Node node = entry.getKey();
-                                       queue.add(new QueueEntry<>(importance, node));
-                                   });
+                    nodeDescriptors
+                            .entrySet().stream()
+                            .filter(entry -> !entry.getValue().isContracted)
+                            .forEach(entry -> {
+                                final long importance = entry.getValue().importance;
+                                final Node node = entry.getKey();
+                                queue.add(new QueueEntry<>(importance, node));
+                            });
                 }
             } else {
                 queue.add(new QueueEntry<>(updatedImportance, minOrderEntryNode));
