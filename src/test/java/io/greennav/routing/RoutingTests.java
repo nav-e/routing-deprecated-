@@ -73,7 +73,7 @@ public class RoutingTests {
 		List<Pair<Node, Node>> queries = new LinkedList<>();
 		final Path path = Paths.get(dataPath, "queries", testName + ".txt");
 		try (Stream<String> stream = Files.lines(path)) {
-			stream.skip(1).map(s -> s.split(" ")).forEach(lineParts -> {
+			stream.map(s -> s.split(" ")).forEach(lineParts -> {
 				final long fromId = Long.parseLong(lineParts[0]);
 				final long toId = Long.parseLong(lineParts[1]);
 				queries.add(new Pair<>(nodesMap.get(fromId), nodesMap.get(toId)));
