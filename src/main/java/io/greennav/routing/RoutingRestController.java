@@ -4,9 +4,7 @@ import de.topobyte.osm4j.core.model.impl.Node;
 import io.greennav.persistence.Persistence;
 import io.greennav.routing.roadgraph.impl.DistanceComputerInMetres;
 import io.greennav.routing.roadgraph.iface.NodeWeightFunction;
-import io.greennav.routing.router.AStarRouter;
-import io.greennav.routing.router.DijkstraRouter;
-import io.greennav.routing.router.Router;
+import io.greennav.routing.router.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -20,7 +18,6 @@ public class RoutingRestController {
     @Autowired
     RoutingRestController(Persistence db) {
         this.db = db;
-        this.router = new AStarRouter(db, weightFunction);
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/route")
@@ -35,6 +32,12 @@ public class RoutingRestController {
                 break;
             case "astar":
                 router = new AStarRouter(db, weightFunction);
+                break;
+            case "bidirectional-dijkstra":
+                router = new BidirectionalDijkstraRouter(db, weightFunction);
+                break;
+            case "contraction-hierarchies":
+                router = new ContractionHierarchiesRouter(db, weightFunction);
                 break;
             default:
                 break;
