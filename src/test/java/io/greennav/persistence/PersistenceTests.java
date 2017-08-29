@@ -69,7 +69,7 @@ public class PersistenceTests {
     }
 
     @Test
-    public void testInMemoryPersistenceNeighboursGetter() {
+    public void testInMemoryPersistenceNeighborsGetter() {
         final Map<Long, Node> nodes = new HashMap<>();
         nodes.put(0L, new Node(0L, 0., 0.));
         nodes.put(1L, new Node(1L, 0., 0.5));
@@ -84,15 +84,22 @@ public class PersistenceTests {
         final TLongList wayTwo = new TLongLinkedList();
         wayTwo.add(new long[]{1, 3});
         ways.put(1L, new Way(1L, wayTwo));
+        final TLongList wayThree = new TLongLinkedList();
+        wayThree.add(new long[]{3, 2});
+        ways.put(2L, new Way(2L, wayThree));
         ways.values().forEach(db::writeWay);
 
         assertEquals(
                 Arrays.stream(new Node[]{nodes.get(2L), nodes.get(3L)}).collect(Collectors.toSet()),
-                db.getNeighbors(nodes.get(1L))
+                db.outgoingNeighbors(nodes.get(1L))
         );
         assertEquals(
                 Collections.emptySet(),
-                db.getNeighbors(nodes.get(2L))
+                db.outgoingNeighbors(nodes.get(2L))
+        );
+        assertEquals(
+                Arrays.stream(new Node[]{nodes.get(1L), nodes.get(3L)}).collect(Collectors.toSet()),
+                db.incomingNeighbors(nodes.get(2L))
         );
     }
 }

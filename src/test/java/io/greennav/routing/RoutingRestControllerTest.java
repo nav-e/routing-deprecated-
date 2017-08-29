@@ -31,7 +31,12 @@ public class RoutingRestControllerTest {
     public void testShortestPathFromThreeNodes() throws Exception {
         String[] algorithms = {"dijkstra", "astar"};
         for (String algorithm : algorithms) {
+<<<<<<< HEAD
             mockMvc.perform(get("/4058432473/25195716/" + algorithm))
+=======
+            String requestString = String.format("/route?from=4058432473&to=25195716&algorithm=%s", algorithm);
+            mockMvc.perform(get(requestString))
+>>>>>>> 137679c0877850fb45b75cccdbfdf85d753eff15
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$[0].id", is(4058432473L)))
                    .andExpect(jsonPath("$[1].id", is(4058432482L)))
