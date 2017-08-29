@@ -31,5 +31,11 @@ public interface Persistence {
 
     Collection<Relation> queryRelations(String key, String value);
 
-    Set<Node> getNeighbors(Node node);
+    Set<Node> incomingNeighbors(Node node);
+
+    Set<Node> outgoingNeighbors(Node node);
+
+    Collection<Node> getAllNodes();
+
+    Collection<Way> getAllWays();
 }
