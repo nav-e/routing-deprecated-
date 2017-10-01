@@ -11,7 +11,7 @@ import io.greennav.routing.roadgraph.impl.RoadEdgeCH;
 import io.greennav.routing.roadgraph.impl.RoadGraph;
 import io.greennav.routing.roadgraph.impl.RoadEdge;
 import io.greennav.routing.roadgraph.impl.RoadGraphCH;
-import javafx.util.Pair;
+import io.greennav.routing.utils.Pair;
 import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 
 import java.time.Duration;

@@ -4,7 +4,7 @@ import de.topobyte.osm4j.core.model.impl.Node;
 import io.greennav.routing.roadgraph.impl.DistanceComputerInMetres;
 import io.greennav.routing.roadgraph.iface.NodeWeightFunction;
 import io.greennav.routing.router.*;
-import javafx.util.Pair;
+import io.greennav.routing.utils.Pair;
 import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -190,8 +190,10 @@ public class RoutingTests {
 		testFromFile("test2");
 	}
 
+  /* Takes a long time to complete
 	@Test
 	public void testNY() {
 		testFromFile("USA-road-d.NY");
 	}
+	*/
 }

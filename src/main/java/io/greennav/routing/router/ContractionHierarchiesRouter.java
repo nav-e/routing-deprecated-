@@ -7,7 +7,7 @@ import io.greennav.routing.roadgraph.impl.RoadEdge;
 import io.greennav.routing.roadgraph.impl.RoadEdgeCH;
 import io.greennav.routing.roadgraph.impl.RoadGraphCH;
 import io.greennav.routing.shortestpath.ContractionHierarchiesShortestPath;
-import javafx.util.Pair;
+import io.greennav.routing.utils.Pair;
 import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 
 import java.util.Collection;

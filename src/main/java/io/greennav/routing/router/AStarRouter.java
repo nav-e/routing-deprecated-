@@ -4,7 +4,7 @@ import de.topobyte.osm4j.core.model.impl.Node;
 import io.greennav.persistence.Persistence;
 import io.greennav.routing.roadgraph.iface.NodeWeightFunction;
 import io.greennav.routing.roadgraph.impl.RoadEdge;
-import javafx.util.Pair;
+import io.greennav.routing.utils.Pair;
 import org.jgrapht.alg.interfaces.AStarAdmissibleHeuristic;
 import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import org.jgrapht.alg.shortestpath.AStarShortestPath;
