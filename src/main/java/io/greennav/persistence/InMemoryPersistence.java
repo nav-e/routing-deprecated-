@@ -86,13 +86,19 @@ public class InMemoryPersistence implements Persistence {
     @Override
     public Collection<Node> queryNodes(String key, String value) {
         final List<Node> results = new ArrayList<>();
+        int maxNodes = 10;
+
         for (Node node : nodes.values()) {
             final Map<String, String> tags = OsmModelUtil.getTagsAsMap(node);
             if (outgoingNeighbors(node).size() > 0
                     && tags.containsKey(key)
                     && tags.get(key).contains(value)) {
                 results.add(node);
+                maxNodes--;
             }
+
+            if (maxNodes == 0)
+                break;
         }
         return results;
     }
