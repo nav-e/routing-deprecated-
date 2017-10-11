@@ -1,22 +1,15 @@
 package io.greennav.routing;
 
-import de.topobyte.osm4j.core.model.iface.OsmTag;
-import de.topobyte.osm4j.core.model.impl.Node;
-import de.topobyte.osm4j.core.model.impl.Tag;
-import de.topobyte.osm4j.core.model.util.OsmModelUtil;
+import io.greennav.osm.Node;
 import io.greennav.persistence.Persistence;
-import io.greennav.routing.roadgraph.impl.DistanceComputerInMetres;
 import io.greennav.routing.roadgraph.iface.NodeWeightFunction;
+import io.greennav.routing.roadgraph.impl.DistanceComputerInMetres;
 import io.greennav.routing.router.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-
-import static de.topobyte.osm4j.core.model.util.OsmModelUtil.getTagsAsMap;
 
 @CrossOrigin
 @RestController
@@ -68,9 +61,7 @@ public class RoutingRestController {
         List<DisplayNode> results = new ArrayList<>();
 
         for (Node n : db.queryNodes("name", nodeName)) {
-            Map tags = OsmModelUtil.getTagsAsMap(n);
-
-            String displayName = (String) tags.get("name");
+            String displayName = n.getTags().get("name");
             results.add(new DisplayNode(displayName, n.getId(),
                     n.getLongitude(), n.getLatitude()));
         }

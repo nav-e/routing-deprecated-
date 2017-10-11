@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: jgraph:jgraph:5.13.0.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/jgraph/jgraph/5.13.0.0/577a30b3c2cf7decbb68471f5c96bfa1647b98dd/jgraph-5.13.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/jgraph/jgraph/5.13.0.0/970751ee4fb74a3b96aed1ca01342a18d470bfcf/jgraph-5.13.0.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

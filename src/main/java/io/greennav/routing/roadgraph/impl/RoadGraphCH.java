@@ -1,6 +1,6 @@
 package io.greennav.routing.roadgraph.impl;
 
-import de.topobyte.osm4j.core.model.impl.Node;
+import io.greennav.osm.Node;
 import io.greennav.persistence.Persistence;
 import io.greennav.routing.roadgraph.iface.NodeWeightFunction;
 import io.greennav.routing.shortestpath.DistanceEstimate;
@@ -20,9 +20,9 @@ import java.util.stream.Stream;
 public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
     public final SearchManager forwardSearchManager;
     public final SearchManager reverseSearchManager;
+    public final Map<Node, RoadGraphCHNodeDescriptor> nodeDescriptors;
     private final List<Node> touchingEdgesSources;
     private final Map<Node, DirectedEdgeContainer<Node, RoadEdgeCH>> shortcutsContainer;
-    public final Map<Node, RoadGraphCHNodeDescriptor> nodeDescriptors;
 
     public RoadGraphCH(Persistence persistence, NodeWeightFunction nodeWeightFunction) {
         super(persistence, nodeWeightFunction, RoadEdgeCH.class);
@@ -156,9 +156,9 @@ public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
             return;
         }
         final Optional<RoadEdgeCH> edgeWithMaxWeightToTarget = outgoingEdgesActiveFilter(contractingNode)
-                .max((lhs, rhs) -> (int)Math.signum(getEdgeWeight(lhs) - getEdgeWeight(rhs)));
+                .max((lhs, rhs) -> (int) Math.signum(getEdgeWeight(lhs) - getEdgeWeight(rhs)));
         final double maxWeightToTarget = edgeWithMaxWeightToTarget.map(this::getEdgeWeight)
-                                                                  .orElse(Double.POSITIVE_INFINITY);
+                .orElse(Double.POSITIVE_INFINITY);
         final Supplier<Stream<RoadEdgeCH>> intermediateEdgesStreamGetter =
                 () -> outgoingEdgesActiveFilter(contractingNode)
                         .map(this::getEdgeTarget)
@@ -166,9 +166,9 @@ public class RoadGraphCH extends RoadGraph<RoadEdgeCH> {
                         .flatMap(Collection::stream);
         intermediateEdgesStreamGetter.get().forEach(this::AddTouchingEdge);
         final Optional<RoadEdgeCH> edgeWithMinWeightToIntermediate = intermediateEdgesStreamGetter
-                .get().min((lhs, rhs) -> (int)(getEdgeWeight(lhs) - getEdgeWeight(rhs)));
+                .get().min((lhs, rhs) -> (int) (getEdgeWeight(lhs) - getEdgeWeight(rhs)));
         final double minWeightToIntermediate = edgeWithMinWeightToIntermediate.map(this::getEdgeWeight)
-                                                                              .orElse(Double.POSITIVE_INFINITY);
+                .orElse(Double.POSITIVE_INFINITY);
         final Set<RoadEdgeCH> activeIncomingEdges =
                 incomingEdgesActiveFilter(contractingNode).collect(Collectors.toSet());
         for (RoadEdgeCH incomingEdge : activeIncomingEdges) {

@@ -1,6 +1,6 @@
 package io.greennav.routing.router;
 
-import de.topobyte.osm4j.core.model.impl.Node;
+import io.greennav.osm.Node;
 import io.greennav.persistence.Persistence;
 import io.greennav.routing.roadgraph.iface.NodeWeightFunction;
 import io.greennav.routing.roadgraph.impl.RoadEdge;
@@ -40,6 +40,6 @@ public class ContractionHierarchiesRouter extends Router {
     }
 
     private RoadGraphCH getRoadGraphCH() {
-        return (RoadGraphCH)graph;
+        return (RoadGraphCH) graph;
     }
 }

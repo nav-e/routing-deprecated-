@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.stream.Stream;
 
 @Configuration
 public class RoutingApplicationConfiguration {
@@ -31,6 +30,7 @@ public class RoutingApplicationConfiguration {
                             src = new PBFSource(f.getAbsolutePath());
                             final Persistence db = getPersistence();
                             src.persistTo(db);
+                            System.out.println("Persisted: " + f.getAbsolutePath());
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         } catch (IOException e) {

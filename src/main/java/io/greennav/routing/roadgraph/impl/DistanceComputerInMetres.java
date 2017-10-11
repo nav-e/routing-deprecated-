@@ -1,7 +1,6 @@
 package io.greennav.routing.roadgraph.impl;
 
-import de.topobyte.osm4j.core.model.impl.Node;
-import java.lang.Double;
+import io.greennav.osm.Node;
 
 public final class DistanceComputerInMetres extends DistanceComputer {
     @Override

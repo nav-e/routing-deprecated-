@@ -1,8 +1,9 @@
 package io.greennav.persistence;
 
-import de.topobyte.osm4j.core.model.impl.Node;
-import de.topobyte.osm4j.core.model.impl.Relation;
-import de.topobyte.osm4j.core.model.impl.Way;
+import io.greennav.osm.Node;
+import io.greennav.osm.Relation;
+import io.greennav.osm.Way;
+
 import java.util.Collection;
 import java.util.Set;
 

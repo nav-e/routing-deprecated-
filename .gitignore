@@ -1,42 +1,11 @@
-target/
-out/
-
-### Maven ###
-.mvn/
-mvnw
-mvnw.cmd
-
-### Gradle ###
-.gradle/
-gradle/
-gradlew
-gradlew.bat
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
-nbproject/private/
-build/
-nbbuild/
-dist/
-nbdist/
-.nb-gradle/
-
-### OS ###
-.DS_Store
-
-### Rest ###
-src/main/resources/static/
-src/main/resources/templates/
+/target
+/classes
+/checkouts
+pom.xml
+pom.xml.asc
+*.jar
+*.class
+/.lein-*
+/.nrepl-port
+.hgignore
+.hg/

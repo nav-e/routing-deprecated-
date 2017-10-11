@@ -1,12 +1,13 @@
 package io.greennav.routing.router;
 
-import de.topobyte.osm4j.core.model.impl.Node;
+import io.greennav.osm.Node;
 import io.greennav.persistence.Persistence;
 import io.greennav.routing.roadgraph.iface.NodeWeightFunction;
 import io.greennav.routing.roadgraph.impl.RoadEdge;
 import io.greennav.routing.utils.Pair;
 import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
+
 import java.util.Collection;
 import java.util.Map;
 

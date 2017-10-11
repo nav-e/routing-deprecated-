@@ -1,20 +1,21 @@
 package io.greennav.routing.roadgraph.impl;
 
-import de.topobyte.osm4j.core.model.impl.Node;
+import io.greennav.osm.Node;
 import io.greennav.persistence.Persistence;
 import io.greennav.routing.roadgraph.iface.NodeWeightFunction;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 import org.jgrapht.graph.specifics.Specifics;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Function;
 
 public class RoadGraph<E extends RoadEdge> extends SimpleDirectedWeightedGraph<Node, E> {
     protected final Persistence persistence;
-    private final NodeWeightFunction nodeWeightFunction;
     protected final Set<Node> cachedIncomingNeighbors = new LinkedHashSet<>();
     protected final Set<Node> cachedOutgoingNeighbors = new LinkedHashSet<>();
+    private final NodeWeightFunction nodeWeightFunction;
 
     public RoadGraph(final Persistence persistence, final NodeWeightFunction nodeWeightFunction,
                      final Class<E> edgeClass) {
@@ -33,9 +34,9 @@ public class RoadGraph<E extends RoadEdge> extends SimpleDirectedWeightedGraph<N
     void fullInitialize() {
         Graphs.addAllVertices(this, persistence.getAllNodes());
         persistence.getAllWays().forEach(way -> {
-            for (int i = 0; i < way.getNumberOfNodes() - 1; ++i) {
-                final Long fromId = way.getNodeId(i);
-                final Long toId = way.getNodeId(i + 1);
+            for (int i = 0; i < way.getNodes().size() - 1; ++i) {
+                final Long fromId = way.getNodes().get(i);
+                final Long toId = way.getNodes().get(i + 1);
                 final Node from = persistence.getNodeById(fromId);
                 final Node to = persistence.getNodeById(toId);
                 E edge = addEdge(from, to);

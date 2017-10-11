@@ -26,8 +26,8 @@ public class Pair<K, V> {
     public boolean equals(Object obj) {
         if (!(obj instanceof Pair))
             return false;
-        return ((Pair) obj).getKey().equals(first) 
-            && ((Pair) obj).getValue().equals(second);
+        return ((Pair) obj).getKey().equals(first)
+                && ((Pair) obj).getValue().equals(second);
     }
 
     @Override

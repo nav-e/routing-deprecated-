@@ -1,18 +1,21 @@
 package io.greennav.routing.shortestpath;
 
-import de.topobyte.osm4j.core.model.impl.Node;
+import io.greennav.osm.Node;
 import io.greennav.routing.roadgraph.impl.RoadEdgeCH;
 import io.greennav.routing.utils.QueueEntry;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.function.Function;
 
 public class SearchManager {
     private static final long kStartIterationIndex = 0;
     private final Function<Node, Set<RoadEdgeCH>> neighborsOfAccessor;
-    private long iterationIndex;
     private final PriorityQueue<QueueEntry<Double, Node>> queue;
     private final Map<Node, SearchManagerNodeDescriptor> nodeDescriptors;
+    private long iterationIndex;
     private double weightRadius;
     private long edgeRadius;
     private boolean active;
@@ -120,7 +123,7 @@ public class SearchManager {
     }
 
     private void lazyQueueUpdate() {
-        while(!emptyContainer() && nodeDescriptors.get(queue.peek().value).estimate.weight != queue.peek().key) {
+        while (!emptyContainer() && nodeDescriptors.get(queue.peek().value).estimate.weight != queue.peek().key) {
             queue.poll();
         }
     }

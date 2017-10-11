@@ -1,6 +1,6 @@
 package io.greennav.routing.roadgraph.impl;
 
-import de.topobyte.osm4j.core.model.impl.Node;
+import io.greennav.osm.Node;
 
 import java.util.Optional;
 

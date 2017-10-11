@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.tinyjee.jgraphx:jgraphx:2.0.0.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.tinyjee.jgraphx/jgraphx/2.0.0.1/ba31c747a124ea12652d453cf174cb910a702ca3/jgraphx-2.0.0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.tinyjee.jgraphx/jgraphx/2.0.0.1/46963c6e2748abfaf87c737d12a777c962bed60c/jgraphx-2.0.0.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

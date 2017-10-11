@@ -1,28 +1,25 @@
 package io.greennav.osm;
 
-import de.topobyte.osm4j.core.access.OsmInputException;
-import de.topobyte.osm4j.pbf.seq.PbfReader;
+import crosby.binary.osmosis.OsmosisReader;
 import io.greennav.persistence.Persistence;
 import io.greennav.persistence.PersistingOsmHandler;
+
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class PBFSource implements OSMSource {
-    private PbfReader reader;
+    private String pbfPath;
 
     public PBFSource(String file) throws FileNotFoundException {
-        reader = new PbfReader(file, false);
+        this.pbfPath = file;
     }
 
     @Override
     public void persistTo(Persistence persistence) throws IOException {
-        PersistingOsmHandler handler = new PersistingOsmHandler(persistence);
-        reader.setHandler(handler);
+        OsmosisReader reader = new OsmosisReader(new FileInputStream(pbfPath));
 
-        try {
-            reader.read();
-        } catch (OsmInputException e) {
-            throw new IOException("Could not read file: " + e.getMessage());
-        }
+        reader.setSink(new PersistingOsmHandler(persistence));
+        reader.run();
     }
 }

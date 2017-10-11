@@ -1,6 +1,6 @@
 package io.greennav.routing.shortestpath;
 
-import de.topobyte.osm4j.core.model.impl.Node;
+import io.greennav.osm.Node;
 
 public class DistanceEstimate {
     public Node node;

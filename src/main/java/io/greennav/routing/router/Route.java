@@ -1,6 +1,7 @@
 package io.greennav.routing.router;
 
-import de.topobyte.osm4j.core.model.impl.Node;
+import io.greennav.osm.Node;
+
 import java.util.List;
 
 public class Route {

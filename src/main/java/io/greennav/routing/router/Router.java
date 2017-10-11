@@ -1,22 +1,23 @@
 package io.greennav.routing.router;
 
-import de.topobyte.osm4j.core.model.impl.Node;
-import de.topobyte.osm4j.core.model.impl.Way;
-import gnu.trove.list.TLongList;
-import gnu.trove.list.array.TLongArrayList;
+import io.greennav.osm.Node;
+import io.greennav.osm.Way;
 import io.greennav.persistence.InMemoryPersistence;
 import io.greennav.persistence.Persistence;
 import io.greennav.routing.roadgraph.iface.NodeWeightFunction;
+import io.greennav.routing.roadgraph.impl.RoadEdge;
 import io.greennav.routing.roadgraph.impl.RoadEdgeCH;
 import io.greennav.routing.roadgraph.impl.RoadGraph;
-import io.greennav.routing.roadgraph.impl.RoadEdge;
 import io.greennav.routing.roadgraph.impl.RoadGraphCH;
 import io.greennav.routing.utils.Pair;
 import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 
@@ -40,9 +41,12 @@ public abstract class Router {
         edges.forEach(pair -> {
             final Node source = pair.getKey();
             final Node target = pair.getValue();
-            final TLongList edgeIds = new TLongArrayList(new long[]{source.getId(), target.getId()});
-            persistence.writeWay(new Way(idCounter.getAndAdd(1), edgeIds));
+
+            persistence.writeWay(new Way(
+                    idCounter.getAndAdd(1),
+                    Arrays.asList(source.getId(), target.getId())));
         });
+
         this.graph = graphInitialize(persistence, weightFunction, edgeClass);
     }
 

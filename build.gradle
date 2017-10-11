@@ -28,20 +28,21 @@ dependencies {
 	// Spring
 	compile('org.springframework.boot:spring-boot-starter-web')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
+
+    // OSM
+    compile group: 'org.openstreetmap.osmosis', name: 'osmosis-core', version: '0.46'
+	compile group: 'org.openstreetmap.osmosis', name: 'osmosis-pbf', version: '0.46'
+	compile 'org.openstreetmap.osmosis:osmosis-osm-binary:0.46'
+
+
 	// Jgrapht
 	compile('org.jgrapht:jgrapht-ext:1.0.1')
-	// OSM
-	compile('de.topobyte:osm4j-core:0.0.20') {
-	    exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-	    exclude group: 'log4j', module: 'log4j'
-	}
-	compile('de.topobyte:osm4j-pbf:0.0.10') {
-        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-        exclude group: 'log4j', module: 'log4j'
-    }
-    // Server
-    compile group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
-    compile "com.sparkjava:spark-core:2.6.0"
+
+	// Server
+	compile group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
+	compile "com.sparkjava:spark-core:2.6.0"
+
+
 	// Testing
 	testCompile group: 'junit', name: 'junit', version: '4.12'
 }

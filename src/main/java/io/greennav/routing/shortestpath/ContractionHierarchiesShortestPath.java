@@ -1,17 +1,15 @@
 package io.greennav.routing.shortestpath;
 
-import de.topobyte.osm4j.core.model.impl.Node;
+import io.greennav.osm.Node;
 import io.greennav.routing.roadgraph.impl.RoadEdgeCH;
 import io.greennav.routing.roadgraph.impl.RoadGraphCH;
 import org.jgrapht.GraphPath;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.GraphWalk;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class ContractionHierarchiesShortestPath extends BaseShortestPathAlgorithm<Node, RoadEdgeCH> {
     private final BestTouchingDescriptor bestTouchingDescriptor;
@@ -22,7 +20,7 @@ public class ContractionHierarchiesShortestPath extends BaseShortestPathAlgorith
     }
 
     private RoadGraphCH getRoadGraphCH() {
-        return (RoadGraphCH)graph;
+        return (RoadGraphCH) graph;
     }
 
     private void relaxNeighbors(SearchManager searchManager, DistanceEstimate nodeEstimate) {
@@ -116,7 +114,7 @@ public class ContractionHierarchiesShortestPath extends BaseShortestPathAlgorith
         otherSearchManager.reset();
         if (Double.isFinite(bestTouchingDescriptor.estimateWeight)) {
             List<RoadEdgeCH> roadEdges = restoreEdgeSequence(bestTouchingDescriptor.node, graphCH.forwardSearchManager,
-                                                             graphCH.reverseSearchManager);
+                    graphCH.reverseSearchManager);
             return new GraphWalk<>(graph, source, target, roadEdges, bestTouchingDescriptor.estimateWeight);
         } else {
             return createEmptyPath(source, target);

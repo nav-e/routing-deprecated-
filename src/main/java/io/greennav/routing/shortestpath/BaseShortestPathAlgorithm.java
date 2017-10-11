@@ -1,10 +1,15 @@
 package io.greennav.routing.shortestpath;
 
-import java.util.*;
-import org.jgrapht.*;
-import org.jgrapht.alg.interfaces.*;
+import org.jgrapht.Graph;
+import org.jgrapht.GraphPath;
+import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import org.jgrapht.alg.shortestpath.ListSingleSourcePathsImpl;
-import org.jgrapht.graph.*;
+import org.jgrapht.graph.GraphWalk;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 abstract class BaseShortestPathAlgorithm<V, E> implements ShortestPathAlgorithm<V, E> {
 
@@ -36,7 +41,7 @@ abstract class BaseShortestPathAlgorithm<V, E> implements ShortestPathAlgorithm<
             return p.getWeight();
         }
     }
-    
+
     protected final GraphPath<V, E> createEmptyPath(V source, V sink) {
         if (source.equals(sink)) {
             return new GraphWalk<>(

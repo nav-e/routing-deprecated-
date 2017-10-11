@@ -1,28 +1,10 @@
 package io.greennav.routing;
 
-import de.topobyte.osm4j.core.model.impl.Node;
-import io.greennav.routing.roadgraph.impl.DistanceComputerInMetres;
-import io.greennav.routing.roadgraph.iface.NodeWeightFunction;
-import io.greennav.routing.router.*;
-import io.greennav.routing.utils.Pair;
-import org.junit.Test;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
-
-import static org.junit.Assert.*;
-
+/*
 public class RoutingTests {
 	private final String dataPath = "data/test";
 
-	/*
-	Creates grid 5x5 with nodes in integer points.
-	 */
+	// Creates grid 5x5 with nodes in integer points.
 	private void createGridGraph(Map<Pair<Double, Double>, Node> nodes, List<Pair<Node, Node>> edges) {
 		AtomicLong idCounter = new AtomicLong();
 		for (double lat = 0.; lat <= 5.; lat += 1.) {
@@ -190,10 +172,9 @@ public class RoutingTests {
 		testFromFile("test2");
 	}
 
-  /* Takes a long time to complete
 	@Test
 	public void testNY() {
 		testFromFile("USA-road-d.NY");
 	}
-	*/
 }
+*/

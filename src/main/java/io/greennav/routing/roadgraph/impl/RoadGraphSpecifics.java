@@ -1,7 +1,8 @@
 package io.greennav.routing.roadgraph.impl;
 
-import de.topobyte.osm4j.core.model.impl.Node;
+import io.greennav.osm.Node;
 import org.jgrapht.graph.specifics.FastLookupDirectedSpecifics;
+
 import java.util.Set;
 
 public class RoadGraphSpecifics<E extends RoadEdge> extends FastLookupDirectedSpecifics<Node, E> {
@@ -10,7 +11,7 @@ public class RoadGraphSpecifics<E extends RoadEdge> extends FastLookupDirectedSp
     }
 
     private RoadGraph getRoadGraph() {
-        return (RoadGraph)abstractBaseGraph;
+        return (RoadGraph) abstractBaseGraph;
     }
 
     @Override
